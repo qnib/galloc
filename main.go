@@ -9,10 +9,19 @@ import (
         "sync"
 )
 
-func bigBytes() *[]byte {
-        s := make([]byte, 1000000)
-        return &s
+type getBytes struct {
+        data []byte
 }
+
+func newBytes() getBytes {
+        size := 1024 * 1024
+        gb := getBytes{
+                data: make([]byte, size),
+        }
+        return gb
+
+}
+
 
 func main() {
         var wg sync.WaitGroup
@@ -22,26 +31,15 @@ func main() {
         }()
 
         var mem runtime.MemStats
-        runtime.ReadMemStats(&mem)
-        log.Println(mem.Alloc)
-        log.Println(mem.TotalAlloc)
-        log.Println(mem.HeapAlloc)
-        log.Println(mem.HeapSys)
-
+        i := 0
+        gbs := make([]getBytes, 0)
         for {
-                s := bigBytes()
-                if s == nil {
-                        log.Println("oh noes")
-                }
-                time.Sleep(1)
+                i++
+                gbs = append(gbs, newBytes())
+                runtime.ReadMemStats(&mem)
+                log.Printf("Alloc:%d | TotalAlloc:%d | HeapAlloc:%d | HeapSys:%d", mem.Alloc, mem.TotalAlloc, mem.HeapAlloc, mem.HeapSys)
+                time.Sleep(time.Duration(500)*time.Millisecond)
         }
-
-        runtime.ReadMemStats(&mem)
-        log.Println(mem.Alloc)
-        log.Println(mem.TotalAlloc)
-        log.Println(mem.HeapAlloc)
-        log.Println(mem.HeapSys)
-
         wg.Add(1)
         wg.Wait()
 

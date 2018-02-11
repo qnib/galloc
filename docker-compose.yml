@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  galloc:
+    image: qnib/galloc
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
